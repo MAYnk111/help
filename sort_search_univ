@@ -1,0 +1,156 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+using namespace std;
+
+struct Student {
+    string id;
+    string name;
+    string department;
+    double cgpa;
+};
+
+// ---------- Read Students from File ----------
+vector<Student> readStudents(const string &filename) {
+    vector<Student> students;
+    ifstream file(filename);
+    if (!file) {
+        cerr << "Error: Cannot open file!" << endl;
+        return students;
+    }
+
+    string id, name, dept;
+    double cgpa;
+    while (getline(file, id, ',') &&
+           getline(file, name, ',') &&
+           getline(file, dept, ',') &&
+           file >> cgpa) {
+        file.ignore(); // skip newline
+        students.push_back({id, name, dept, cgpa});
+    }
+    file.close();
+    return students;
+}
+
+// ---------- Bubble Sort ----------
+void bubbleSortByCGPA(vector<Student> &students) {
+    int n = students.size();
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (students[j].cgpa < students[j + 1].cgpa) { // descending
+                swap(students[j], students[j + 1]);
+            }
+        }
+    }
+}
+
+void bubbleSortByName(vector<Student> &students) {
+    int n = students.size();
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (students[j].name > students[j + 1].name) { // alphabetical
+                swap(students[j], students[j + 1]);
+            }
+        }
+    }
+}
+
+// ---------- Binary Search ----------
+int binarySearchByID(const vector<Student> &students, const string &id) {
+    int low = 0, high = students.size() - 1;
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        if (students[mid].id == id) return mid;
+        else if (students[mid].id > id) high = mid - 1;
+        else low = mid + 1;
+    }
+    return -1;
+}
+
+int binarySearchByName(const vector<Student> &students, const string &name) {
+    int low = 0, high = students.size() - 1;
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        if (students[mid].name == name) return mid;
+        else if (students[mid].name > name) high = mid - 1;
+        else low = mid + 1;
+    }
+    return -1;
+}
+
+// ---------- Display Students ----------
+void displayStudents(const vector<Student> &students) {
+    cout << "\nID\tName\t\tDepartment\t\tCGPA\n";
+    cout << "-----------------------------------------------------\n";
+    for (const auto &s : students) {
+        cout << s.id << "\t" << s.name << "\t\t" << s.department << "\t\t" << s.cgpa << endl;
+    }
+}
+
+// ---------- Write to File ----------
+void writeStudents(const string &filename, const vector<Student> &students) {
+    ofstream file(filename);
+    for (const auto &s : students) {
+        file << s.id << "," << s.name << "," << s.department << "," << s.cgpa << "\n";
+    }
+    file.close();
+}
+
+// ---------- Main ----------
+int main() {
+    string filename = "students.txt";
+    vector<Student> students = readStudents(filename);
+
+    if (students.empty()) {
+        cerr << "No student data found or unable to read file.\n";
+        return 0;
+    }
+
+    int choice;
+    cout << "Choose Sorting Criteria:\n1. Sort by CGPA (Descending)\n2. Sort by Name (Alphabetical)\nEnter choice (1/2): ";
+    cin >> choice;
+
+    if (choice == 1)
+        bubbleSortByCGPA(students);
+    else if (choice == 2)
+        bubbleSortByName(students);
+    else
+        cout << "Invalid choice, sorting skipped.\n";
+
+    cout << "\nSorted Student Records:\n";
+    displayStudents(students);
+
+    cout << "\nSearch by:\n1. Student ID\n2. Name\nEnter choice (1/2): ";
+    int searchChoice;
+    cin >> searchChoice;
+    cin.ignore();
+    string searchValue;
+    int index = -1;
+
+    if (searchChoice == 1) {
+        cout << "Enter Student ID: ";
+        getline(cin, searchValue);
+        bubbleSortByName(students); // ensure sorted order
+        index = binarySearchByID(students, searchValue);
+    } else if (searchChoice == 2) {
+        cout << "Enter Student Name: ";
+        getline(cin, searchValue);
+        bubbleSortByName(students);
+        index = binarySearchByName(students, searchValue);
+    }
+
+    if (index != -1) {
+        cout << "\nStudent Found:\n";
+        cout << "ID: " << students[index].id << endl;
+        cout << "Name: " << students[index].name << endl;
+        cout << "Department: " << students[index].department << endl;
+        cout << "CGPA: " << students[index].cgpa << endl;
+    } else {
+        cout << "Student not found.\n";
+    }
+
+    writeStudents(filename, students);
+    cout << "\nFile updated with sorted records successfully.\n";
+
+    return 0;
+}
