@@ -1,0 +1,118 @@
+#include <iostream>
+using namespace std;
+
+// Structure to store sparse matrix element
+struct Element {
+    int row;
+    int col;
+    int value;
+};
+
+// Function to convert normal matrix to sparse form
+int convertToSparse(int matrix[10][10], int rows, int cols, Element sparse[]) {
+    int k = 0; // index for sparse array
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (matrix[i][j] != 0) {
+                sparse[k].row = i;
+                sparse[k].col = j;
+                sparse[k].value = matrix[i][j];
+                k++;
+            }
+        }
+    }
+    return k; // number of non-zero elements
+}
+
+// Function to display sparse matrix
+void displaySparse(Element sparse[], int nonZero, int rows, int cols) {
+    cout << "\nSparse Matrix Representation (Row, Col, Value):\n";
+    cout << "Rows: " << rows << "  Cols: " << cols << "  Non-zero: " << nonZero << endl;
+    cout << "---------------------------------------\n";
+    cout << "Row\tCol\tValue\n";
+    for (int i = 0; i < nonZero; i++) {
+        cout << sparse[i].row << "\t" << sparse[i].col << "\t" << sparse[i].value << endl;
+    }
+}
+
+// Function to add two sparse matrices
+int addSparse(Element A[], int nA, Element B[], int nB, Element C[]) {
+    int i = 0, j = 0, k = 0;
+    while (i < nA && j < nB) {
+        if (A[i].row == B[j].row && A[i].col == B[j].col) {
+            C[k] = A[i];
+            C[k].value = A[i].value + B[j].value;
+            i++; j++; k++;
+        } else if (A[i].row < B[j].row || 
+                  (A[i].row == B[j].row && A[i].col < B[j].col)) {
+            C[k++] = A[i++];
+        } else {
+            C[k++] = B[j++];
+        }
+    }
+    while (i < nA) C[k++] = A[i++];
+    while (j < nB) C[k++] = B[j++];
+    return k;
+}
+
+// Function to find department with max total equipment
+void findMaxDepartment(int matrix[10][10], int rows, int cols) {
+    int maxDept = 0;
+    int maxSum = 0;
+
+    for (int i = 0; i < rows; i++) {
+        int sum = 0;
+        for (int j = 0; j < cols; j++)
+            sum += matrix[i][j];
+        if (sum > maxSum) {
+            maxSum = sum;
+            maxDept = i;
+        }
+    }
+    cout << "\nDepartment with Maximum Equipment: " 
+         << maxDept + 1 << " (Total = " << maxSum << ")\n";
+}
+
+// ---------------- MAIN FUNCTION ----------------
+int main() {
+    int rows, cols;
+    int A[10][10], B[10][10];
+
+    cout << "Enter number of departments (rows): ";
+    cin >> rows;
+    cout << "Enter number of equipment types (cols): ";
+    cin >> cols;
+
+    cout << "\nEnter equipment data for Hospital 1:\n";
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            cin >> A[i][j];
+
+    cout << "\nEnter equipment data for Hospital 2:\n";
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            cin >> B[i][j];
+
+    Element SA[50], SB[50], SC[100];
+    int nA = convertToSparse(A, rows, cols, SA);
+    int nB = convertToSparse(B, rows, cols, SB);
+
+    cout << "\nHospital 1 Sparse Matrix:";
+    displaySparse(SA, nA, rows, cols);
+
+    cout << "\nHospital 2 Sparse Matrix:";
+    displaySparse(SB, nB, rows, cols);
+
+    int nC = addSparse(SA, nA, SB, nB, SC);
+    cout << "\nCombined Sparse Matrix (After Addition):";
+    displaySparse(SC, nC, rows, cols);
+
+    // Compute combined matrix to find max department
+    int C[10][10] = {0};
+    for (int i = 0; i < nC; i++)
+        C[SC[i].row][SC[i].col] = SC[i].value;
+
+    findMaxDepartment(C, rows, cols);
+
+    return 0;
+}
