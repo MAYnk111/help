@@ -1,0 +1,195 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Structure for each student node
+struct Student {
+    int id;
+    string name;
+    string course;
+    Student* next;
+};
+
+// Head pointer for the list
+Student* head = NULL;
+
+// ---------- Create New Node ----------
+Student* createNode(int id, string name, string course) {
+    Student* newNode = new Student();
+    newNode->id = id;
+    newNode->name = name;
+    newNode->course = course;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// ---------- Insert at Beginning ----------
+void insertAtBeginning(int id, string name, string course) {
+    Student* newNode = createNode(id, name, course);
+    newNode->next = head;
+    head = newNode;
+    cout << "Student inserted at beginning.\n";
+}
+
+// ---------- Insert at End ----------
+void insertAtEnd(int id, string name, string course) {
+    Student* newNode = createNode(id, name, course);
+    if (head == NULL) {
+        head = newNode;
+    } else {
+        Student* temp = head;
+        while (temp->next != NULL)
+            temp = temp->next;
+        temp->next = newNode;
+    }
+    cout << "Student inserted at end.\n";
+}
+
+// ---------- Insert at Specific Position ----------
+void insertAtPosition(int id, string name, string course, int pos) {
+    if (pos <= 1 || head == NULL) {
+        insertAtBeginning(id, name, course);
+        return;
+    }
+
+    Student* newNode = createNode(id, name, course);
+    Student* temp = head;
+    int count = 1;
+
+    while (temp != NULL && count < pos - 1) {
+        temp = temp->next;
+        count++;
+    }
+
+    if (temp == NULL) {
+        insertAtEnd(id, name, course);
+    } else {
+        newNode->next = temp->next;
+        temp->next = newNode;
+        cout << "Student inserted at position " << pos << ".\n";
+    }
+}
+
+// ---------- Delete a Student by ID ----------
+void deleteStudent(int id) {
+    if (head == NULL) {
+        cout << "List is empty.\n";
+        return;
+    }
+
+    Student* temp = head;
+    Student* prev = NULL;
+
+    // If head node is to be deleted
+    if (head->id == id) {
+        head = head->next;
+        delete temp;
+        cout << "Student record deleted.\n";
+        return;
+    }
+
+    while (temp != NULL && temp->id != id) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        cout << "Student not found.\n";
+        return;
+    }
+
+    prev->next = temp->next;
+    delete temp;
+    cout << "Student record deleted.\n";
+}
+
+// ---------- Search Student by ID ----------
+void searchStudent(int id) {
+    Student* temp = head;
+    while (temp != NULL) {
+        if (temp->id == id) {
+            cout << "\nStudent Found:\n";
+            cout << "ID: " << temp->id << endl;
+            cout << "Name: " << temp->name << endl;
+            cout << "Course: " << temp->course << endl;
+            return;
+        }
+        temp = temp->next;
+    }
+    cout << "Student not found.\n";
+}
+
+// ---------- Display All Students ----------
+void displayStudents() {
+    if (head == NULL) {
+        cout << "No student records found.\n";
+        return;
+    }
+    cout << "\n--- Student Records ---\n";
+    cout << "ID\tName\t\tCourse\n";
+    cout << "---------------------------------\n";
+    Student* temp = head;
+    while (temp != NULL) {
+        cout << temp->id << "\t" << temp->name << "\t\t" << temp->course << endl;
+        temp = temp->next;
+    }
+}
+
+// ---------- MAIN FUNCTION ----------
+int main() {
+    int choice, id, pos;
+    string name, course;
+
+    do {
+        cout << "\n--- Student Record Management ---\n";
+        cout << "1. Insert at Beginning\n2. Insert at End\n3. Insert at Position\n";
+        cout << "4. Delete by ID\n5. Search by ID\n6. Display All\n7. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter ID, Name, Course: ";
+                cin >> id >> name >> course;
+                insertAtBeginning(id, name, course);
+                break;
+
+            case 2:
+                cout << "Enter ID, Name, Course: ";
+                cin >> id >> name >> course;
+                insertAtEnd(id, name, course);
+                break;
+
+            case 3:
+                cout << "Enter ID, Name, Course, and Position: ";
+                cin >> id >> name >> course >> pos;
+                insertAtPosition(id, name, course, pos);
+                break;
+
+            case 4:
+                cout << "Enter Student ID to Delete: ";
+                cin >> id;
+                deleteStudent(id);
+                break;
+
+            case 5:
+                cout << "Enter Student ID to Search: ";
+                cin >> id;
+                searchStudent(id);
+                break;
+
+            case 6:
+                displayStudents();
+                break;
+
+            case 7:
+                cout << "Exiting program...\n";
+                break;
+
+            default:
+                cout << "Invalid choice!\n";
+        }
+    } while (choice != 7);
+
+    return 0;
+}
