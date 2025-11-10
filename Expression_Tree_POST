@@ -1,0 +1,136 @@
+#include <iostream>
+#include <stack>
+#include <string>
+using namespace std;
+
+// Structure for a tree node
+struct Node {
+    char data;
+    Node* left;
+    Node* right;
+};
+
+// ---------- Utility: Create new node ----------
+Node* createNode(char value) {
+    Node* newNode = new Node();
+    newNode->data = value;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// ---------- Check if character is operator ----------
+bool isOperator(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/' || c == '^');
+}
+
+// ---------- Build Expression Tree from Postfix ----------
+Node* constructTreeFromPostfix(string postfix) {
+    stack<Node*> st;
+    for (char c : postfix) {
+        if (!isOperator(c)) {
+            st.push(createNode(c));
+        } else {
+            Node* node = createNode(c);
+            node->right = st.top(); st.pop();
+            node->left = st.top(); st.pop();
+            st.push(node);
+        }
+    }
+    return st.top();
+}
+
+// ---------- Recursive Traversals ----------
+void inorderRecursive(Node* root) {
+    if (root != NULL) {
+        inorderRecursive(root->left);
+        cout << root->data << " ";
+        inorderRecursive(root->right);
+    }
+}
+
+void preorderRecursive(Node* root) {
+    if (root != NULL) {
+        cout << root->data << " ";
+        preorderRecursive(root->left);
+        preorderRecursive(root->right);
+    }
+}
+
+void postorderRecursive(Node* root) {
+    if (root != NULL) {
+        postorderRecursive(root->left);
+        postorderRecursive(root->right);
+        cout << root->data << " ";
+    }
+}
+
+// ---------- Non-Recursive Traversals ----------
+void inorderNonRecursive(Node* root) {
+    stack<Node*> st;
+    Node* curr = root;
+    cout << "\nInorder (Non-Recursive): ";
+    while (curr != NULL || !st.empty()) {
+        while (curr != NULL) {
+            st.push(curr);
+            curr = curr->left;
+        }
+        curr = st.top(); st.pop();
+        cout << curr->data << " ";
+        curr = curr->right;
+    }
+}
+
+void preorderNonRecursive(Node* root) {
+    if (root == NULL) return;
+    stack<Node*> st;
+    st.push(root);
+    cout << "\nPreorder (Non-Recursive): ";
+    while (!st.empty()) {
+        Node* curr = st.top(); st.pop();
+        cout << curr->data << " ";
+        if (curr->right) st.push(curr->right);
+        if (curr->left) st.push(curr->left);
+    }
+}
+
+void postorderNonRecursive(Node* root) {
+    if (root == NULL) return;
+    stack<Node*> st1, st2;
+    st1.push(root);
+    while (!st1.empty()) {
+        Node* curr = st1.top(); st1.pop();
+        st2.push(curr);
+        if (curr->left) st1.push(curr->left);
+        if (curr->right) st1.push(curr->right);
+    }
+    cout << "\nPostorder (Non-Recursive): ";
+    while (!st2.empty()) {
+        cout << st2.top()->data << " ";
+        st2.pop();
+    }
+}
+
+// ---------- MAIN FUNCTION ----------
+int main() {
+    string postfix;
+    cout << "Enter a postfix expression: ";
+    cin >> postfix;
+
+    Node* root = constructTreeFromPostfix(postfix);
+
+    cout << "\n--- Recursive Traversals ---\n";
+    cout << "Inorder:   ";
+    inorderRecursive(root);
+    cout << "\nPreorder:  ";
+    preorderRecursive(root);
+    cout << "\nPostorder: ";
+    postorderRecursive(root);
+
+    cout << "\n\n--- Non-Recursive Traversals ---";
+    inorderNonRecursive(root);
+    preorderNonRecursive(root);
+    postorderNonRecursive(root);
+    cout << endl;
+
+    return 0;
+}
