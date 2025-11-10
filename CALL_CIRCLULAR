@@ -1,0 +1,115 @@
+#include <iostream>
+using namespace std;
+
+#define MAX 5   // maximum number of phone lines (queue size)
+
+class CircularQueue {
+    int front, rear;
+    string calls[MAX];  // array to store call IDs or customer names
+
+public:
+    CircularQueue() {
+        front = -1;
+        rear = -1;
+    }
+
+    // ---------- Check if Queue is Full ----------
+    bool isFull() {
+        return (front == 0 && rear == MAX - 1) || (rear + 1 == front);
+    }
+
+    // ---------- Check if Queue is Empty ----------
+    bool isEmpty() {
+        return (front == -1);
+    }
+
+    // ---------- Enqueue (Add new call) ----------
+    void enqueue(string callID) {
+        if (isFull()) {
+            cout << "⚠️  Queue is FULL! Cannot add new call: " << callID << endl;
+            return;
+        }
+
+        if (front == -1) front = 0; // first call
+        rear = (rear + 1) % MAX;
+        calls[rear] = callID;
+        cout << "✅ New call added: " << callID << endl;
+    }
+
+    // ---------- Dequeue (Answer a call) ----------
+    void dequeue() {
+        if (isEmpty()) {
+            cout << "⚠️  No waiting calls. Queue is EMPTY.\n";
+            return;
+        }
+
+        cout << "📞 Answered and removed call: " << calls[front] << endl;
+
+        if (front == rear) {
+            // Only one element
+            front = rear = -1;
+        } else {
+            front = (front + 1) % MAX;
+        }
+    }
+
+    // ---------- Display Current Queue ----------
+    void display() {
+        if (isEmpty()) {
+            cout << "No calls waiting in the queue.\n";
+            return;
+        }
+
+        cout << "\n📋 Current Waiting Calls:\n";
+        int i = front;
+        while (true) {
+            cout << calls[i];
+            if (i == rear) break;
+            cout << " <- ";
+            i = (i + 1) % MAX;
+        }
+        cout << endl;
+    }
+};
+
+// ---------- MAIN FUNCTION ----------
+int main() {
+    CircularQueue callQueue;
+    int choice;
+    string callID;
+
+    do {
+        cout << "\n--- Call Center Queue Management ---\n";
+        cout << "1. New Call (Enqueue)\n";
+        cout << "2. Answer Call (Dequeue)\n";
+        cout << "3. Display Waiting Calls\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter Call ID or Customer Name: ";
+                cin >> callID;
+                callQueue.enqueue(callID);
+                break;
+
+            case 2:
+                callQueue.dequeue();
+                break;
+
+            case 3:
+                callQueue.display();
+                break;
+
+            case 4:
+                cout << "Exiting Call Center System.\n";
+                break;
+
+            default:
+                cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}
