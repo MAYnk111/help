@@ -1,0 +1,85 @@
+#include <iostream>
+using namespace std;
+
+// Structure to represent a non-zero element in sparse matrix
+struct Element {
+    int row;
+    int col;
+    int value;
+};
+
+// Function to convert matrix to sparse form
+int convertToSparse(int mat[10][10], int rows, int cols, Element sparse[]) {
+    int k = 0;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (mat[i][j] != 0) {
+                sparse[k].row = i;
+                sparse[k].col = j;
+                sparse[k].value = mat[i][j];
+                k++;
+            }
+        }
+    }
+    return k; // number of non-zero elements
+}
+
+// Function to display sparse matrix
+void displaySparse(Element sparse[], int count, int rows, int cols) {
+    cout << "\nSparse Matrix Representation (Row, Col, Value):\n";
+    cout << "Rows: " << rows << "  Cols: " << cols << "  Non-zero: " << count << "\n";
+    cout << "---------------------------------\n";
+    cout << "Row\tCol\tValue\n";
+    for (int i = 0; i < count; i++) {
+        cout << sparse[i].row << "\t" << sparse[i].col << "\t" << sparse[i].value << endl;
+    }
+}
+
+// Function to find student with highest attendance percentage
+void findHighestAttendance(int mat[10][10], int rows, int cols) {
+    int maxStudent = 0;
+    int maxPresent = 0;
+
+    for (int i = 0; i < rows; i++) {
+        int present = 0;
+        for (int j = 0; j < cols; j++) {
+            if (mat[i][j] != 0)
+                present++;
+        }
+        if (present > maxPresent) {
+            maxPresent = present;
+            maxStudent = i;
+        }
+    }
+
+    double percentage = (maxPresent * 100.0) / cols;
+    cout << "\nStudent with Highest Attendance: Student " << maxStudent + 1
+         << " (" << percentage << "% present)\n";
+}
+
+// ---------- MAIN FUNCTION ----------
+int main() {
+    int rows, cols;
+    int attendance[10][10];
+
+    cout << "Enter number of students (rows): ";
+    cin >> rows;
+    cout << "Enter number of subjects (cols): ";
+    cin >> cols;
+
+    cout << "\nEnter attendance data (1 for present, 0 for absent):\n";
+    for (int i = 0; i < rows; i++) {
+        cout << "Student " << i + 1 << ": ";
+        for (int j = 0; j < cols; j++) {
+            cin >> attendance[i][j];
+        }
+    }
+
+    Element sparse[100];
+    int count = convertToSparse(attendance, rows, cols, sparse);
+
+    displaySparse(sparse, count, rows, cols);
+    findHighestAttendance(attendance, rows, cols);
+
+    return 0;
+}
