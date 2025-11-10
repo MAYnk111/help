@@ -1,0 +1,161 @@
+#include <iostream>
+using namespace std;
+
+// Structure to represent a node in BST
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+};
+
+// ---------- Create New Node ----------
+Node* createNode(int value) {
+    Node* newNode = new Node();
+    newNode->data = value;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// ---------- Insert Node (Handles Duplicates) ----------
+Node* insert(Node* root, int value) {
+    if (root == NULL) {
+        return createNode(value);
+    }
+    if (value < root->data)
+        root->left = insert(root->left, value);
+    else if (value > root->data)
+        root->right = insert(root->right, value);
+    else
+        cout << "Duplicate value " << value << " not inserted.\n";
+    return root;
+}
+
+// ---------- Find Minimum Node (Helper for Delete) ----------
+Node* findMin(Node* root) {
+    while (root && root->left != NULL)
+        root = root->left;
+    return root;
+}
+
+// ---------- Delete Node ----------
+Node* deleteNode(Node* root, int value) {
+    if (root == NULL) {
+        cout << "Value not found in the tree.\n";
+        return root;
+    }
+
+    if (value < root->data)
+        root->left = deleteNode(root->left, value);
+    else if (value > root->data)
+        root->right = deleteNode(root->right, value);
+    else {
+        // Node found: handle three cases
+        if (root->left == NULL) {
+            Node* temp = root->right;
+            delete root;
+            return temp;
+        } else if (root->right == NULL) {
+            Node* temp = root->left;
+            delete root;
+            return temp;
+        } else {
+            Node* temp = findMin(root->right);
+            root->data = temp->data;
+            root->right = deleteNode(root->right, temp->data);
+        }
+    }
+    return root;
+}
+
+// ---------- Search Node ----------
+bool search(Node* root, int value) {
+    if (root == NULL)
+        return false;
+    if (root->data == value)
+        return true;
+    else if (value < root->data)
+        return search(root->left, value);
+    else
+        return search(root->right, value);
+}
+
+// ---------- Tree Traversals ----------
+void inorder(Node* root) {
+    if (root != NULL) {
+        inorder(root->left);
+        cout << root->data << " ";
+        inorder(root->right);
+    }
+}
+
+void preorder(Node* root) {
+    if (root != NULL) {
+        cout << root->data << " ";
+        preorder(root->left);
+        preorder(root->right);
+    }
+}
+
+void postorder(Node* root) {
+    if (root != NULL) {
+        postorder(root->left);
+        postorder(root->right);
+        cout << root->data << " ";
+    }
+}
+
+// ---------- Main Function ----------
+int main() {
+    Node* root = NULL;
+    int choice, value;
+
+    do {
+        cout << "\n--- Binary Search Tree Menu ---\n";
+        cout << "1. Insert\n2. Delete\n3. Search\n4. Display (Inorder, Preorder, Postorder)\n5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter value to insert: ";
+                cin >> value;
+                root = insert(root, value);
+                break;
+
+            case 2:
+                cout << "Enter value to delete: ";
+                cin >> value;
+                root = deleteNode(root, value);
+                break;
+
+            case 3:
+                cout << "Enter value to search: ";
+                cin >> value;
+                if (search(root, value))
+                    cout << "Value " << value << " found in the tree.\n";
+                else
+                    cout << "Value " << value << " not found.\n";
+                break;
+
+            case 4:
+                cout << "\nInorder Traversal: ";
+                inorder(root);
+                cout << "\nPreorder Traversal: ";
+                preorder(root);
+                cout << "\nPostorder Traversal: ";
+                postorder(root);
+                cout << endl;
+                break;
+
+            case 5:
+                cout << "Exiting program...\n";
+                break;
+
+            default:
+                cout << "Invalid choice! Try again.\n";
+        }
+
+    } while (choice != 5);
+
+    return 0;
+}
