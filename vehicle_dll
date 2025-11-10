@@ -1,0 +1,221 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Structure for each vehicle node
+struct Vehicle {
+    string number;
+    string owner;
+    string serviceType;
+    Vehicle *prev;
+    Vehicle *next;
+};
+
+// Head and tail pointers
+Vehicle *head = NULL;
+Vehicle *tail = NULL;
+
+// ---------- Function to Create a New Node ----------
+Vehicle* createNode(string number, string owner, string serviceType) {
+    Vehicle* newNode = new Vehicle();
+    newNode->number = number;
+    newNode->owner = owner;
+    newNode->serviceType = serviceType;
+    newNode->prev = newNode->next = NULL;
+    return newNode;
+}
+
+// ---------- Insert at Beginning ----------
+void insertAtBeginning(string number, string owner, string serviceType) {
+    Vehicle* newNode = createNode(number, owner, serviceType);
+    if (head == NULL) {
+        head = tail = newNode;
+    } else {
+        newNode->next = head;
+        head->prev = newNode;
+        head = newNode;
+    }
+    cout << "Vehicle inserted at beginning.\n";
+}
+
+// ---------- Insert at End ----------
+void insertAtEnd(string number, string owner, string serviceType) {
+    Vehicle* newNode = createNode(number, owner, serviceType);
+    if (head == NULL) {
+        head = tail = newNode;
+    } else {
+        tail->next = newNode;
+        newNode->prev = tail;
+        tail = newNode;
+    }
+    cout << "Vehicle inserted at end.\n";
+}
+
+// ---------- Insert at Specific Position ----------
+void insertAtPosition(string number, string owner, string serviceType, int pos) {
+    Vehicle* newNode = createNode(number, owner, serviceType);
+
+    if (pos <= 1 || head == NULL) {
+        insertAtBeginning(number, owner, serviceType);
+        return;
+    }
+
+    Vehicle* temp = head;
+    int count = 1;
+
+    while (temp != NULL && count < pos - 1) {
+        temp = temp->next;
+        count++;
+    }
+
+    if (temp == NULL || temp->next == NULL) {
+        insertAtEnd(number, owner, serviceType);
+    } else {
+        newNode->next = temp->next;
+        newNode->prev = temp;
+        temp->next->prev = newNode;
+        temp->next = newNode;
+        cout << "Vehicle inserted at position " << pos << ".\n";
+    }
+}
+
+// ---------- Delete Vehicle by Number ----------
+void deleteVehicle(string number) {
+    if (head == NULL) {
+        cout << "List is empty.\n";
+        return;
+    }
+
+    Vehicle* temp = head;
+
+    while (temp != NULL && temp->number != number)
+        temp = temp->next;
+
+    if (temp == NULL) {
+        cout << "Vehicle not found.\n";
+        return;
+    }
+
+    if (temp == head)
+        head = head->next;
+    if (temp == tail)
+        tail = tail->prev;
+
+    if (temp->next != NULL)
+        temp->next->prev = temp->prev;
+    if (temp->prev != NULL)
+        temp->prev->next = temp->next;
+
+    delete temp;
+    cout << "Vehicle record deleted.\n";
+}
+
+// ---------- Display Forward ----------
+void displayForward() {
+    if (head == NULL) {
+        cout << "No vehicles in queue.\n";
+        return;
+    }
+    cout << "\nVehicles in Queue (Forward Order):\n";
+    cout << "Vehicle No\tOwner\t\tService Type\n";
+    cout << "-------------------------------------------\n";
+    Vehicle* temp = head;
+    while (temp != NULL) {
+        cout << temp->number << "\t" << temp->owner << "\t\t" << temp->serviceType << endl;
+        temp = temp->next;
+    }
+}
+
+// ---------- Display Reverse ----------
+void displayReverse() {
+    if (tail == NULL) {
+        cout << "No vehicles in queue.\n";
+        return;
+    }
+    cout << "\nVehicles in Queue (Reverse Order):\n";
+    cout << "Vehicle No\tOwner\t\tService Type\n";
+    cout << "-------------------------------------------\n";
+    Vehicle* temp = tail;
+    while (temp != NULL) {
+        cout << temp->number << "\t" << temp->owner << "\t\t" << temp->serviceType << endl;
+        temp = temp->prev;
+    }
+}
+
+// ---------- Search Vehicle ----------
+void searchVehicle(string number) {
+    Vehicle* temp = head;
+    while (temp != NULL) {
+        if (temp->number == number) {
+            cout << "\nVehicle Found:\n";
+            cout << "Vehicle No: " << temp->number << endl;
+            cout << "Owner: " << temp->owner << endl;
+            cout << "Service Type: " << temp->serviceType << endl;
+            return;
+        }
+        temp = temp->next;
+    }
+    cout << "Vehicle not found.\n";
+}
+
+// ---------- MAIN ----------
+int main() {
+    int choice, pos;
+    string number, owner, serviceType;
+
+    do {
+        cout << "\n--- Vehicle Service Center Menu ---\n";
+        cout << "1. Insert at Beginning\n2. Insert at End\n3. Insert at Position\n4. Delete Vehicle\n5. Display Forward\n6. Display Reverse\n7. Search Vehicle\n8. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter Vehicle No, Owner, Service Type: ";
+                cin >> number >> owner >> serviceType;
+                insertAtBeginning(number, owner, serviceType);
+                break;
+
+            case 2:
+                cout << "Enter Vehicle No, Owner, Service Type: ";
+                cin >> number >> owner >> serviceType;
+                insertAtEnd(number, owner, serviceType);
+                break;
+
+            case 3:
+                cout << "Enter Vehicle No, Owner, Service Type and Position: ";
+                cin >> number >> owner >> serviceType >> pos;
+                insertAtPosition(number, owner, serviceType, pos);
+                break;
+
+            case 4:
+                cout << "Enter Vehicle No to Delete: ";
+                cin >> number;
+                deleteVehicle(number);
+                break;
+
+            case 5:
+                displayForward();
+                break;
+
+            case 6:
+                displayReverse();
+                break;
+
+            case 7:
+                cout << "Enter Vehicle No to Search: ";
+                cin >> number;
+                searchVehicle(number);
+                break;
+
+            case 8:
+                cout << "Exiting...\n";
+                break;
+
+            default:
+                cout << "Invalid choice.\n";
+        }
+    } while (choice != 8);
+
+    return 0;
+}
