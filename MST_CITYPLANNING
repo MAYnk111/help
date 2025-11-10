@@ -1,0 +1,97 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+// Structure to represent an edge
+struct Edge {
+    int src, dest, weight;
+};
+
+// Structure for Disjoint Set (Union-Find)
+struct DisjointSet {
+    vector<int> parent, rank;
+
+    DisjointSet(int n) {
+        parent.resize(n);
+        rank.resize(n, 0);
+        for (int i = 0; i < n; i++)
+            parent[i] = i;
+    }
+
+    int find(int u) {
+        if (u != parent[u])
+            parent[u] = find(parent[u]); // path compression
+        return parent[u];
+    }
+
+    void unite(int u, int v) {
+        u = find(u);
+        v = find(v);
+        if (u == v) return;
+
+        if (rank[u] < rank[v])
+            parent[u] = v;
+        else if (rank[u] > rank[v])
+            parent[v] = u;
+        else {
+            parent[v] = u;
+            rank[u]++;
+        }
+    }
+};
+
+// Function to find MST using Kruskal’s Algorithm
+void kruskalMST(vector<Edge>& edges, int V) {
+    vector<Edge> result; // Store MST edges
+    int totalCost = 0;
+
+    // Step 1: Sort all edges by weight
+    sort(edges.begin(), edges.end(), [](Edge a, Edge b) {
+        return a.weight < b.weight;
+    });
+
+    // Step 2: Create disjoint sets
+    DisjointSet ds(V);
+
+    // Step 3: Process edges in increasing order
+    for (auto &edge : edges) {
+        int uRoot = ds.find(edge.src);
+        int vRoot = ds.find(edge.dest);
+
+        // If adding this edge doesn't create a cycle, include it
+        if (uRoot != vRoot) {
+            result.push_back(edge);
+            totalCost += edge.weight;
+            ds.unite(uRoot, vRoot);
+        }
+    }
+
+    // Step 4: Display MST
+    cout << "\nEdges in the Minimum Spanning Tree:\n";
+    cout << "Source\tDestination\tCost\n";
+    for (auto &edge : result) {
+        cout << edge.src << "\t" << edge.dest << "\t\t" << edge.weight << endl;
+    }
+    cout << "\nMinimum Total Construction Cost = " << totalCost << endl;
+}
+
+// ---------- MAIN ----------
+int main() {
+    int V, E;
+    cout << "Enter number of neighborhoods (vertices): ";
+    cin >> V;
+    cout << "Enter number of possible roads (edges): ";
+    cin >> E;
+
+    vector<Edge> edges(E);
+
+    cout << "\nEnter each road as: Source Destination Cost\n";
+    for (int i = 0; i < E; i++) {
+        cin >> edges[i].src >> edges[i].dest >> edges[i].weight;
+    }
+
+    kruskalMST(edges, V);
+
+    return 0;
+}
