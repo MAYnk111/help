@@ -1,0 +1,149 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+using namespace std;
+
+// Structure to store policyholder details
+struct PolicyHolder {
+    string policyNumber;
+    string name;
+    int age;
+    double premium;
+    string policyType;
+};
+
+// ---------- Read data from file ----------
+vector<PolicyHolder> readPolicies(const string &filename) {
+    vector<PolicyHolder> policies;
+    ifstream file(filename);
+    if (!file) {
+        cerr << "Error: Cannot open file!" << endl;
+        return policies;
+    }
+
+    PolicyHolder p;
+    while (file >> p.policyNumber >> p.name >> p.age >> p.premium >> p.policyType) {
+        policies.push_back(p);
+    }
+
+    file.close();
+    return policies;
+}
+
+// ---------- Bubble Sort ----------
+void sortByPremium(vector<PolicyHolder> &policies) {
+    int n = policies.size();
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (policies[j].premium > policies[j + 1].premium)
+                swap(policies[j], policies[j + 1]);
+        }
+    }
+}
+
+void sortByName(vector<PolicyHolder> &policies) {
+    int n = policies.size();
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (policies[j].name > policies[j + 1].name)
+                swap(policies[j], policies[j + 1]);
+        }
+    }
+}
+
+// ---------- Binary Search ----------
+int binarySearchByPolicyNumber(const vector<PolicyHolder> &policies, const string &policyNumber) {
+    int low = 0, high = policies.size() - 1;
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        if (policies[mid].policyNumber == policyNumber)
+            return mid;
+        else if (policies[mid].policyNumber > policyNumber)
+            high = mid - 1;
+        else
+            low = mid + 1;
+    }
+    return -1;
+}
+
+// ---------- Display all records ----------
+void displayPolicies(const vector<PolicyHolder> &policies) {
+    cout << "\nPolicyNumber\tName\tAge\tPremium\tPolicyType\n";
+    cout << "---------------------------------------------------------\n";
+    for (const auto &p : policies) {
+        cout << p.policyNumber << "\t\t"
+             << p.name << "\t"
+             << p.age << "\t"
+             << p.premium << "\t"
+             << p.policyType << endl;
+    }
+}
+
+// ---------- Write sorted data back to file ----------
+void writePolicies(const string &filename, const vector<PolicyHolder> &policies) {
+    ofstream file(filename);
+    for (const auto &p : policies) {
+        file << p.policyNumber << " "
+             << p.name << " "
+             << p.age << " "
+             << p.premium << " "
+             << p.policyType << endl;
+    }
+    file.close();
+}
+
+// ---------- Main Function ----------
+int main() {
+    string filename = "policies.txt";
+    vector<PolicyHolder> policies = readPolicies(filename);
+
+    if (policies.empty()) {
+        cerr << "No data found in file!" << endl;
+        return 0;
+    }
+
+    int choice;
+    cout << "Sort Records By:\n1. Premium Amount (Ascending)\n2. Name (Alphabetical)\nEnter choice (1/2): ";
+    cin >> choice;
+
+    if (choice == 1)
+        sortByPremium(policies);
+    else if (choice == 2)
+        sortByName(policies);
+    else
+        cout << "Invalid choice! No sorting done.\n";
+
+    cout << "\nSorted Policy Records:\n";
+    displayPolicies(policies);
+
+    // ---------- Search ----------
+    cout << "\nEnter Policy Number to Search: ";
+    string searchPolicy;
+    cin >> searchPolicy;
+
+    // Sort by policy number before binary search
+    // (to ensure search works correctly)
+    int n = policies.size();
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++)
+            if (policies[j].policyNumber > policies[j + 1].policyNumber)
+                swap(policies[j], policies[j + 1]);
+
+    int index = binarySearchByPolicyNumber(policies, searchPolicy);
+
+    if (index != -1) {
+        cout << "\nPolicy Found:\n";
+        cout << "Policy Number: " << policies[index].policyNumber << endl;
+        cout << "Name: " << policies[index].name << endl;
+        cout << "Age: " << policies[index].age << endl;
+        cout << "Premium: " << policies[index].premium << endl;
+        cout << "Policy Type: " << policies[index].policyType << endl;
+    } else {
+        cout << "\nNo policy found with number " << searchPolicy << endl;
+    }
+
+    writePolicies(filename, policies);
+    cout << "\nFile updated with sorted records successfully.\n";
+
+    return 0;
+}
