@@ -1,0 +1,65 @@
+#include <iostream>
+#include <stack>
+#include <string>
+using namespace std;
+
+int main() {
+    stack<string> history;  // stack to store URLs
+    int choice;
+    string url;
+
+    do {
+        cout << "\n--- Web Browser History Menu ---\n";
+        cout << "1. Visit New Page (Push)\n";
+        cout << "2. Go Back (Pop)\n";
+        cout << "3. View Browsing History (Display)\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter Page URL: ";
+                cin >> url;
+                history.push(url);
+                cout << "Page '" << url << "' added to history.\n";
+                break;
+
+            case 2:
+                if (history.empty()) {
+                    cout << "No pages in history.\n";
+                } else {
+                    cout << "Going back from page: " << history.top() << endl;
+                    history.pop();
+                    if (!history.empty())
+                        cout << "Now on page: " << history.top() << endl;
+                    else
+                        cout << "No more pages in history.\n";
+                }
+                break;
+
+            case 3:
+                if (history.empty()) {
+                    cout << "Browsing history is empty.\n";
+                } else {
+                    cout << "\nCurrent Browsing History (Most recent first):\n";
+                    stack<string> temp = history; // copy to display without losing data
+                    while (!temp.empty()) {
+                        cout << temp.top() << endl;
+                        temp.pop();
+                    }
+                }
+                break;
+
+            case 4:
+                cout << "Exiting browser history system.\n";
+                break;
+
+            default:
+                cout << "Invalid choice! Try again.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}
+
