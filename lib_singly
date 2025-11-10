@@ -1,0 +1,200 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Structure to represent a book node
+struct Book {
+    string bookID;
+    string title;
+    string author;
+    Book* next;
+};
+
+// Head pointer for the linked list
+Book* head = NULL;
+
+// ---------- Create a new node ----------
+Book* createNode(string id, string title, string author) {
+    Book* newNode = new Book();
+    newNode->bookID = id;
+    newNode->title = title;
+    newNode->author = author;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// ---------- Insert at Beginning ----------
+void insertAtBeginning(string id, string title, string author) {
+    Book* newNode = createNode(id, title, author);
+    newNode->next = head;
+    head = newNode;
+    cout << "Book inserted at beginning.\n";
+}
+
+// ---------- Insert at End ----------
+void insertAtEnd(string id, string title, string author) {
+    Book* newNode = createNode(id, title, author);
+    if (head == NULL) {
+        head = newNode;
+    } else {
+        Book* temp = head;
+        while (temp->next != NULL)
+            temp = temp->next;
+        temp->next = newNode;
+    }
+    cout << "Book inserted at end.\n";
+}
+
+// ---------- Insert at Specific Position ----------
+void insertAtPosition(string id, string title, string author, int pos) {
+    Book* newNode = createNode(id, title, author);
+
+    if (pos <= 1 || head == NULL) {
+        insertAtBeginning(id, title, author);
+        return;
+    }
+
+    Book* temp = head;
+    int count = 1;
+    while (temp != NULL && count < pos - 1) {
+        temp = temp->next;
+        count++;
+    }
+
+    if (temp == NULL || temp->next == NULL) {
+        insertAtEnd(id, title, author);
+    } else {
+        newNode->next = temp->next;
+        temp->next = newNode;
+        cout << "Book inserted at position " << pos << ".\n";
+    }
+}
+
+// ---------- Delete a Book by ID ----------
+void deleteBook(string id) {
+    if (head == NULL) {
+        cout << "List is empty.\n";
+        return;
+    }
+
+    Book* temp = head;
+    Book* prev = NULL;
+
+    // If first node is the one to delete
+    if (head->bookID == id) {
+        head = head->next;
+        delete temp;
+        cout << "Book deleted successfully.\n";
+        return;
+    }
+
+    while (temp != NULL && temp->bookID != id) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        cout << "Book not found.\n";
+        return;
+    }
+
+    prev->next = temp->next;
+    delete temp;
+    cout << "Book deleted successfully.\n";
+}
+
+// ---------- Display all Books ----------
+void displayBooks() {
+    if (head == NULL) {
+        cout << "No books in catalog.\n";
+        return;
+    }
+    cout << "\nBook Catalog:\n";
+    cout << "Book ID\t\tTitle\t\tAuthor\n";
+    cout << "------------------------------------------\n";
+    Book* temp = head;
+    while (temp != NULL) {
+        cout << temp->bookID << "\t" << temp->title << "\t\t" << temp->author << endl;
+        temp = temp->next;
+    }
+}
+
+// ---------- Search by Book ID ----------
+void searchBook(string id) {
+    Book* temp = head;
+    while (temp != NULL) {
+        if (temp->bookID == id) {
+            cout << "\nBook Found:\n";
+            cout << "Book ID: " << temp->bookID << endl;
+            cout << "Title: " << temp->title << endl;
+            cout << "Author: " << temp->author << endl;
+            return;
+        }
+        temp = temp->next;
+    }
+    cout << "Book not found.\n";
+}
+
+// ---------- MAIN FUNCTION ----------
+int main() {
+    int choice, pos;
+    string id, title, author;
+
+    do {
+        cout << "\n--- Library Book Catalog Menu ---\n";
+        cout << "1. Insert at Beginning\n";
+        cout << "2. Insert at End\n";
+        cout << "3. Insert at Position\n";
+        cout << "4. Delete a Book\n";
+        cout << "5. Display All Books\n";
+        cout << "6. Search Book by ID\n";
+        cout << "7. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter Book ID, Title, Author: ";
+                cin >> id >> title >> author;
+                insertAtBeginning(id, title, author);
+                break;
+
+            case 2:
+                cout << "Enter Book ID, Title, Author: ";
+                cin >> id >> title >> author;
+                insertAtEnd(id, title, author);
+                break;
+
+            case 3:
+                cout << "Enter Book ID, Title, Author, and Position: ";
+                cin >> id >> title >> author >> pos;
+                insertAtPosition(id, title, author, pos);
+                break;
+
+            case 4:
+                cout << "Enter Book ID to Delete: ";
+                cin >> id;
+                deleteBook(id);
+                break;
+
+            case 5:
+                displayBooks();
+                break;
+
+            case 6:
+                cout << "Enter Book ID to Search: ";
+                cin >> id;
+                searchBook(id);
+                break;
+
+            case 7:
+                cout << "Exiting...\n";
+                break;
+
+            default:
+                cout << "Invalid choice.\n";
+        }
+    } while (choice != 7);
+
+    return 0;
+}
